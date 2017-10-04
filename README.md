@@ -7,11 +7,11 @@
 
 
 
-##This package includes support for a Multi-tenant database, that is the only difference from the core package
+## This package includes support for a Multi-tenant database, that is the only difference from the core package
 
 With this package you can assign roles access to tenants.  This package simply extends the core package and does not overwrite anything.
 
-####New functions
+## New functions
 
 
 Get a list of all roles and tenants assigned to the user
@@ -57,7 +57,7 @@ We've included a couple of blade helpers too
 @endhaspermission
 ```
 
-##Overview
+## Overview
 This package allows you to manage user permissions and roles in a database.
 
 Once installed you can do stuff like this:
@@ -101,7 +101,7 @@ This package can be used in Laravel 5.4 or higher. If you are using an older ver
 You can install the package via composer:
 
 ``` bash
-composer require spatie/laravel-permission
+composer require chadlross/laravel-permission
 ```
 
 In Laravel 5.5 the service provider will automatically get registered. In older versions of the framework just add the service provider in `config/app.php` file:
