@@ -2,6 +2,24 @@
 
 All notable changes to `laravel-permission` will be documented in this file
 
+## 2.7.0 - 2017-09-27
+- add support for L5.3
+
+## 2.6.0 - 2017-09-10
+- add `permission` scope
+
+## 2.5.4 - 2017-09-07
+- register the blade directives in the register method of the service provider
+
+## 2.5.3 - 2017-09-07
+- register the blade directives in the boot method of the service provider
+
+## 2.5.2 - 2017-09-05
+- let middleware use caching
+
+## 2.5.1 - 2017-09-02
+- add getRoleNames() method to return a collection of assigned roles
+
 ## 2.5.0 - 2017-08-30
 - add compatiblity with Laravel 5.5
 
