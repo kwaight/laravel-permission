@@ -1,10 +1,63 @@
-# Associate users with permissions and roles
+# Associate users with permissions and roles, and roles with tenants
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-permission.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-permission)
 [![Build Status](https://img.shields.io/travis/spatie/laravel-permission/master.svg?style=flat-square)](https://travis-ci.org/spatie/laravel-permission)
 [![StyleCI](https://styleci.io/repos/42480275/shield)](https://styleci.io/repos/42480275)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-permission.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-permission)
 
+
+
+##This package includes support for a Multi-tenant database, that is the only difference from the core package
+
+With this package you can assign roles access to tenants.  This package simply extends the core package and does not overwrite anything.
+
+####New functions
+
+
+Get a list of all roles and tenants assigned to the user
+```php
+$user->tenants;
+```
+
+Give permission via a role to a user for a tenant
+```php
+$user->assignRoleToTenant($roleId, $tenantId);
+
+// you may pass a class
+$user->assignRoleToTenant($role, $tenant);
+
+// or a name
+$user->assignRoleToTenant('writer', 'The Chronicle');
+```
+
+Determine if user has permission to tenant via role
+
+**Note:** Direct permissions are not supported at this time
+```php
+$user->hasPermissionToTenant('delete articles', $tenant);
+
+// you may also check via tenant name
+$user->hasPermissionToTenant('delete articles', 'The Chronicle');
+```
+
+If you would like to revoke permissions you can do so by
+```php
+$user->removeRoleFromTenant('admin', $tenant);
+
+// you may also check via tenant name
+$user->hasPermissionToTenant('admin', 'The Chronicle');
+```
+
+We've included a couple of blade helpers too
+```php
+@haspermission('edit articles', 'The Chronicle')
+    I am a writer!
+@else
+    I am not a writer...
+@endhaspermission
+```
+
+##Overview
 This package allows you to manage user permissions and roles in a database.
 
 Once installed you can do stuff like this:
@@ -19,6 +72,9 @@ $user->assignRole('writer');
 $role->givePermissionTo('edit articles');
 ```
 
+You can also remove permissions
+```php
+```
 If you're using multiple guards we've got you covered as well. Every guard will have its own set of permissions and roles that can be assigned to the guard's users. Read about it in the [using multiple guards](#using-multiple-guards) section of the readme.
 
 Because all permissions will be registered on [Laravel's gate](https://laravel.com/docs/5.4/authorization), you can test if a user has a permission with Laravel's default `can` function:
@@ -103,6 +159,19 @@ return [
          */
 
         'role' => Spatie\Permission\Models\Role::class,
+        
+        /*
+         * We need to know which Eloquent model should be used to retrieve your
+         * tenants. By default it is just the "Tenant" model but you may use
+         * whatever you like.
+         */
+        'tenant' => Spatie\Permission\Models\Tenant::class,
+        
+         /*
+          * When using the "HasTenant" trait from this package, we need to know which
+          * Eloquent model should be used to retrieve your Role, Tenant User pivot table
+          */
+        'role_tenant_pivot' => Spatie\Permission\Models\RoleTenantUserPivot::class,
 
     ],
 
@@ -147,6 +216,31 @@ return [
          */
 
         'role_has_permissions' => 'role_has_permissions',
+        
+        /*
+         * Here you can specify the table name for the role, tenant, user pivot
+         * table.  If you want to alter the pivot table you can do so here
+         */
+        
+         'role_tenant_user' => 'role_tenant_user',
+        
+         /*
+          * Here you can specify the name of the table for your tenants.  It is
+          * likely that if you already have an existing application you will want
+          * to update it.
+          */
+        
+          'tenants' => 'tenants',
+        
+          /*
+           * More often than not you will want to keep value of your users table
+           * to the default of users.  In the event you want to change it you may
+           * do so here.  Keep it mind this is only going to change it for our ACL
+           * package and not anything else that my depend on this being users. I
+           * do not recommend you change this.
+           */
+        
+           'users' => 'users',
     ],
 
     /*
@@ -173,17 +267,17 @@ First add the `Spatie\Permission\Traits\HasRoles` trait to your `User` model(s):
 
 ```php
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Spatie\Permission\Traits\HasRoles;
+use Spatie\Permission\Traits\HasTenants;
 
 class User extends Authenticatable
 {
-    use HasRoles;
+    use HasTenants;
 
     // ...
 }
 ```
 
-> - note that if you need to use `HasRoles` trait with another model ex.`Page` you will also need to add `protected $guard_name = 'web';` as well to that model or you would get an error
+> - note that if you need to use `HasTenants` trait with another model ex.`Page` you will also need to add `protected $guard_name = 'web';` as well to that model or you would get an error
 >
 >```php
 >use Illuminate\Database\Eloquent\Model;
