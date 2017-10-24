@@ -60,7 +60,7 @@ class Role extends Model implements RoleContract
     public function tenants(): BelongsToMany
     {
         return $this->belongsToMany(
-            config('permission.models.tenants'),
+            config('permission.models.tenant'),
             config('permission.table_names.role_tenant_user')
         );
     }

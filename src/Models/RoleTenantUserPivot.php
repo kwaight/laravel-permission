@@ -23,10 +23,9 @@ class RoleTenantUserPivot extends Pivot {
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(
-            config('permission.models.roles')
+            config('permission.models.role')
         );
     }
-
 
     /**
      * Determine if the user may perform the given permission.
@@ -41,7 +40,7 @@ class RoleTenantUserPivot extends Pivot {
     public function tenants(): BelongsToMany
     {
         return $this->belongsToMany(
-            config('permission.models.tenants')
+            config('permission.models.tenant')
         );
     }
 

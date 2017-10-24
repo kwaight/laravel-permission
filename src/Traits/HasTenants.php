@@ -23,7 +23,10 @@ trait HasTenants
             config('permission.table_names.role_tenant_user')
         )->withPivot('role_id')
             ->join('roles', 'role_tenant_user.role_id', '=', 'roles.id')
-            ->select('roles.name as pivot_role_name', 'tenants.tenant_name as pivot_tenant_name')
+            ->select(
+                'roles.name as pivot_role_name',
+                config('permission.table_column.tenant.name'). ' as pivot_tenant_name'
+            )
             ->using(config('permission.models.role_tenant_pivot'));
     }
 

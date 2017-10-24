@@ -1,0 +1,62 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+
+class CreatePermissionTables extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        $tableNames = config('permission.table_names');
+        $tenantColumns = config('permission.table_columns.tenants');
+        $foreignKeys = config('permission.foreign_keys');
+
+        // Comment out this if you already have a tenant table
+        Schema::create($tableNames['tenants'], function (Blueprint $table) use ($tenantColumns) {
+            $table->increments($tenantColumns['id']);
+            $table->string($tenantColumns['name']);
+            $table->timestamps();
+        });
+
+        Schema::create($tableNames['role_tenant_user'], function (Blueprint $table) use ($tableNames, $foreignKeys) {
+            $table->integer('role_id')->unsigned();
+            $table->integer('tenant_id')->unsigned();
+            $table->integer('user_id')->unsigned();
+
+            $table->foreign('role_id', 'pivot_role')
+                ->references($foreignKeys['roles'])
+                ->on($tableNames['roles'])
+                ->onDelete('cascade');
+
+            $table->foreign('tenant_id', 'pivot_tenant')
+                ->references($foreignKeys['tenants'])
+                ->on($tableNames['tenants'])
+                ->onDelete('cascade');
+
+            $table->foreign('user_id', 'pivot_user')
+                ->references($foreignKeys['users'])
+                ->on($tableNames['users'])
+                ->onDelete('cascade');
+
+            $table->primary(['role_id', 'tenant_id', 'user_id']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        $tableNames = config('permission.table_names');
+
+        //Schema::drop($tableNames['role_has_permissions']);  //Drop this table only if you don't mind losing your tenant table
+        Schema::drop($tableNames['role_tenant_user']);
+    }
+}
