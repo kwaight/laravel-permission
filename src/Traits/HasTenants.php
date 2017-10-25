@@ -135,7 +135,8 @@ trait HasTenants
         } elseif (is_numeric($tenant)) {
             $tenantId = $tenant;
         } elseif (is_string($tenant)) {
-            $tenantId = Tenant::findByName($tenant)->id;
+            $id = config('permission.foreign_keys.tenants');
+            $tenantId = Tenant::findByName($tenant)->$id;
         }
         $rtuPivot = new RoleTenantUserPivot();
         if (is_array($roles)) {

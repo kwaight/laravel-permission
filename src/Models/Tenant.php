@@ -23,6 +23,7 @@ class Tenant extends Model implements TenantContract
         parent::__construct($attributes);
 
         $this->setTable(config('permission.table_names.tenants'));
+        $this->setKeyName(config('permission.foreign_keys.tenants'));
     }
 
     public function roles(): BelongsToMany
