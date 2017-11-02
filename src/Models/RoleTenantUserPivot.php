@@ -63,10 +63,17 @@ class RoleTenantUserPivot extends Pivot {
 
     public function attach($userId, $roleId, $tenantId)
     {
-        $this->user_id = $userId;
-        $this->role_id = $roleId;
-        $this->tenant_id = $tenantId;
-        $this->save();
+        $existing = self::where([
+            'user_id' => $userId,
+            'role_id' => $roleId,
+            'tenant_id' => $tenantId
+        ])->first();
+        if (!$existing) {
+            $this->user_id = $userId;
+            $this->role_id = $roleId;
+            $this->tenant_id = $tenantId;
+            $this->save();
+        }
     }
 
 }

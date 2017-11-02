@@ -101,6 +101,16 @@ class PermissionServiceProvider extends ServiceProvider
             $bladeCompiler->directive('endhaspermission', function () {
                 return '<?php endif; ?>';
             });
+
+            $bladeCompiler->directive('hasroletenant', function ($arguments) {
+                list($role, $tenant) = explode(',', $arguments.',');
+
+                return "<?php if(auth()->check() && 
+                    auth()->user()->hasRoleWithTenant({$role}, {$tenant})): ?>";
+            });
+            $bladeCompiler->directive('endhasroletenant', function () {
+                return '<?php endif; ?>';
+            });
         });
     }
 }

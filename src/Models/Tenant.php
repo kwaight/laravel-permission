@@ -56,7 +56,8 @@ class Tenant extends Model implements TenantContract
      */
     public static function findByName(string $name): TenantContract
     {
-        $tenant = static::where(config('permission.table_columns.tenants.name'), $name)->first();
+        $tableColumn = config('permission.table_column.tenant.name');
+        $tenant = static::where($tableColumn, $name)->first();
 
         if (! $tenant) {
             throw TenantDoesNotExist::create($name);

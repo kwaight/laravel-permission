@@ -18,9 +18,13 @@ trait HasTenants
      */
     public function tenants(): BelongsToMany
     {
-        return $this->belongsToMany(
-            config('permission.models.tenant'),
-            config('permission.table_names.role_tenant_user')
+        $model = config('permission.models.tenant');
+        $table = config('permission.table_names.role_tenant_user');
+        $obj = $this->belongsToMany(
+            $model,
+            $table,
+            'user_id',
+            'tenant_id'
         )->withPivot('role_id')
             ->join('roles', 'role_tenant_user.role_id', '=', 'roles.id')
             ->select(
@@ -28,6 +32,8 @@ trait HasTenants
                 config('permission.table_column.tenant.name'). ' as pivot_tenant_name'
             )
             ->using(config('permission.models.role_tenant_pivot'));
+
+        return $obj;
     }
 
     /**
@@ -135,8 +141,7 @@ trait HasTenants
         } elseif (is_numeric($tenant)) {
             $tenantId = $tenant;
         } elseif (is_string($tenant)) {
-            $id = config('permission.foreign_keys.tenants');
-            $tenantId = Tenant::findByName($tenant)->$id;
+            $tenantId = $tenant;
         }
         $rtuPivot = new RoleTenantUserPivot();
         if (is_array($roles)) {
@@ -144,7 +149,7 @@ trait HasTenants
                 $rtuPivot->attach($this->id, $v->id, $tenantId);
             }
         } else {
-            $rtuPivot->attach($this->id, $roles, $tenantId);
+            $rtuPivot->attach($this->id, $roles->id, $tenantId);
         }
 
         $this->forgetCachedPermissions();
@@ -167,12 +172,13 @@ trait HasTenants
                 $roles[] = $v->id;
             }
         }
+
         if (is_string($role) && is_string($tenant)) {
-            $matches = $this->tenants->where('pivot.role_name', $role)->where('pivot.tenant_name', $tenant);
+            $matches = $this->tenants->where('pivot.role_name', $role)->where('pivot.tenant_id', $tenant);
         } elseif (is_string($role) && $tenant instanceof Tenant) {
             $matches = $this->tenants->where('pivot.role_name', $role)->where('pivot.tenant_id', $tenant->id);
         } elseif (!empty($roles) && is_string($tenant)) {
-            $matches = $this->tenants->whereIn('pivot.role_id', $roles)->where('pivot.tenant_name', $tenant);
+            $matches = $this->tenants->whereIn('pivot.role_id', $roles)->where('pivot.tenant_id', $tenant);
         } elseif (!empty($roles) && $tenant instanceof Tenant) {
             $matches = $this->tenants->whereIn('pivot.role_id', $roles)->where('pivot.tenant_id', $tenant->id);
         }
